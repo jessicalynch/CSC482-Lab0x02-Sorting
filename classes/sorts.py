@@ -12,7 +12,6 @@ def bubble_sort(L):
     Returns: 
     list: a sorted list
     """
-
     N = len(L)
 
     # For each pass through the list
@@ -23,9 +22,7 @@ def bubble_sort(L):
         # as the values at the end are already sorted
         for j in range(N-1-i):
             if L[j] > L[j+1]:
-                tmp = L[j]
-                L[j] = L[j+1]
-                L[j+1] = tmp
+                L[j], L[j+1] = L[j+1], L[j]
 
     return L
 
@@ -144,7 +141,6 @@ def partition(L, start, end, debug=False):
         print(L[start:end+1])
 
     i = start-1 # track pivot index
-    j = 0
     
     # Compare each value in list to the value
     # at the last index (end)
