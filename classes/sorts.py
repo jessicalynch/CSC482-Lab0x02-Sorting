@@ -26,35 +26,25 @@ def bubble_sort(L):
 
     return L
 
-def merge_sort(L, debug=False):
-    """A divide-and-conquer sorting algorithm that recursively divides 
-    a list in half until it consists of only a single element
-    and uses helper function to reassemble
+def insertion_sort(L, debug=False):
+    """An elementary sorting algorithm
 
     Parameters:
     arg1 (list): a list to be sorted
-    arg2 (bool): prints steps if true 
 
     Returns: 
     list: a sorted list
     """    
-    if debug:
-        print("merge_sort: ", L)
-
-    # Base case: when list contains only one element
-    if len(L) <= 1:
-        return L
-
-    # Divide the list into two halves
-    mid = len(L) // 2
-    L1 = L[:mid]
-    L2 = L[mid:]
-
-    # Recursive call on each half
-    L1 = merge_sort(L1)
-    L2 = merge_sort(L2)
-
-    return merge(L1, L2)
+    # Iterate forward through the list
+    for i in range(1, len(L)):
+        # Start inner loop at i and move backward
+        j = i
+        # Swap element with its predecessor if
+        # the predecessor value is larger
+        while j > 0 and L[j] < L[j-1]:
+            L[j-1], L[j] = L[j], L[j-1]
+            j -= 1
+    return L
 
 def merge(L1, L2, debug=False):
     """A helper function for Merge Sort that combines two lists into one
@@ -95,34 +85,38 @@ def merge(L1, L2, debug=False):
     
     return merged_list
 
-def quicksort(L, start, end, debug=False):
-    """A divide-and-conquer sorting algorithm that recursively partitions 
-    a list into two parts, with all elements left of pivot index
-    smaller than pivot value
+def merge_sort(L, debug=False):
+    """A divide-and-conquer sorting algorithm that recursively divides 
+    a list in half until it consists of only a single element
+    and uses helper function to reassemble
 
     Parameters:
     arg1 (list): a list to be sorted
-    arg2 (int): starting index
-    arg3 (int): ending index
-    arg4 (bool): prints steps if true 
+    arg2 (bool): prints steps if true 
 
     Returns: 
     list: a sorted list
-    """
+    """    
     if debug:
-        print(f"quicksort: start = {start}, end = {end}")
+        print("merge_sort: ", L)
 
-    # The first call to quicksort uses the first and last indecies 
-    # of the complete list for start and end values
-    if (start < end):
-        pivot = partition(L, start, end, debug)
-        quicksort(L, start, pivot-1, debug)
-        quicksort(L, pivot+1, end, debug)
-    return L
+    # Base case: when list contains only one element
+    if len(L) <= 1:
+        return L
 
-# Partition (QuickSort helper function)
+    # Divide the list into two halves
+    mid = len(L) // 2
+    L1 = L[:mid]
+    L2 = L[mid:]
+
+    # Recursive call on each half
+    L1 = merge_sort(L1)
+    L2 = merge_sort(L2)
+
+    return merge(L1, L2)
+
 def partition(L, start, end, debug=False):
-    """A helper function for QuickSort that uses the last element 
+    """A helper function for quicksort that uses the last element 
     of the current list as a pivot value 
     and moves all smaller elements to the left
 
@@ -163,4 +157,45 @@ def partition(L, start, end, debug=False):
     # Return pivot index    
     return i+1
 
+def quicksort(L, start, end, debug=False):
+    """A divide-and-conquer sorting algorithm that recursively partitions 
+    a list into two parts, with all elements left of pivot index
+    smaller than pivot value
 
+    Parameters:
+    arg1 (list): a list to be sorted
+    arg2 (int): starting index
+    arg3 (int): ending index
+    arg4 (bool): prints steps if true 
+
+    Returns: 
+    list: a sorted list
+    """
+    if debug:
+        print(f"quicksort: start = {start}, end = {end}")
+
+    # The first call to quicksort uses the first and last indecies 
+    # of the complete list for start and end values
+    if (start < end):
+        pivot = partition(L, start, end, debug)
+        quicksort(L, start, pivot-1, debug)
+        quicksort(L, pivot+1, end, debug)
+    return L
+
+def find_min(L, start, debug=False):
+    min_value = L[start]
+    min_loc = start
+    for i in range(start, len(L)):
+        if L[i] < min_value:
+            min_value = L[i]
+            min_loc = i
+    return min_loc
+
+def selection_sort(L, debug=False):
+    for i in range(len(L)):
+        min_loc = find_min(L, i, debug)
+        if debug:
+            print("i:", i, "\tmin_loc:", min_loc)
+        if L[i] != L[min_loc]:
+            L[i], L[min_loc] = L[min_loc], L[i]
+    return L

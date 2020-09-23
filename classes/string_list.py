@@ -1,25 +1,24 @@
 #!/usr/bin/env python
 
-"""integer_list.py: a class for generating list of integers"""
+"""integer_list.py: a class for generating integer lists easily"""
 __author__ = "Jessica Lynch"
 
 import random
 from time import perf_counter_ns
 import classes.sorts as sorts
-import sys
 
-class IntegerList:
+class StringList:
 
     # CONSTRUCTOR
     #---------------------------------------------
     def __init__(self, file_path=None):
-        """A list of integers with sorting methods        
+        """A list of strings with sorting methods        
         
         Parameters:
         arg1 (str): initializes with data if filename is provided (optional)
 
         Attributes:
-        values: integer list
+        values: string list
         """
         self.values = []
         if file_path != None:
@@ -27,16 +26,14 @@ class IntegerList:
 
     # METHODS
     #---------------------------------------------
-    def read_ints(self, file_path):        
+    def read_strings(self, file_path):        
         with open(file_path, "r") as f:
-            self.values = [int(x) for x in f]
+            self.values = [str(x) for x in f]
 
-    def gen_ints(self, num_ints, min_val=None, max_val=None):
-        if min_val is None:
-            min_val = sys.maxsize * -1
-        if max_val is None:
-            max_val = sys.maxsize
-        self.values = [random.randint(min_val, max_val) for _ in range(num_ints)]
+    def gen_strings(self, N, k, min_v, max_v):
+        if min_v < 1 or max_v > 126:
+            raise ValueError("Out of ASCII range: use min and max values between 1 and 126")
+        self.values = [''.join(chr(random.randint(min_v, max_v)) for _ in range(k)) for _ in range(N)]
             
     def bubble_sort(self):
         """An elementary sorting algorithm"""
