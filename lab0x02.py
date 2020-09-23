@@ -9,20 +9,20 @@ from time import perf_counter_ns
 
 def main():
     try:
-        strings = StringList()
-        # strings.generate_test_list(5, 15, 97, 122)
-        strings.verify_sorts(5, 15, 97, 122)
-        strings2 = StringList("strings.txt")
-        print(strings2.values)
-        # print(strings.values)
-        # strings.bubble_sort()
-        # strings.merge_sort()
-        # strings.quicksort()
-        # strings.insertion_sort()
-        strings.selection_sort()
-        # print(strings.values)
-        # print(strings.is_sorted())
-        
+        N = 1000
+        k = 10
+        min_v = 1
+        max_v = 256
+
+        strings = StringList(N, k, min_v, max_v)
+        #strings.print()
+        #strings.verify_sorts()
+
+        #strings.radix_sort(debug=True)
+        #print(strings.is_sorted())
+
+        strings.verify_sorts()
+
     except Exception as e:
         print(e)
 

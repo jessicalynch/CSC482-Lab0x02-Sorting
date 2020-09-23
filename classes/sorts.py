@@ -26,6 +26,30 @@ def bubble_sort(L):
 
     return L
 
+def counting_sort(L, debug=False):
+    # Init dictionary with keys for each 
+    # unique value in the list
+    counter = dict.fromkeys(L, 0)
+    if len(counter) > 1000:
+        raise ValueError("Counting sort: too many keys")
+
+    # Put keys in order
+    ordered_keys = sorted(counter)
+
+    # Pass through list and increment counter
+    for val in L:
+        counter[val] += 1
+
+    # Reassemble the list in order 
+    # using dictionary keys and quantities
+    current_index = 0
+    for key in ordered_keys:
+        qty = counter[key]
+        for _ in range(int(qty)):
+            L[current_index] = key
+            current_index += 1
+    return L
+
 def insertion_sort(L, debug=False):
     """An elementary sorting algorithm
 
@@ -181,6 +205,44 @@ def quicksort(L, start, end, debug=False):
         quicksort(L, start, pivot-1, debug)
         quicksort(L, pivot+1, end, debug)
     return L
+
+def radix_sort(L, debug=False):
+    inputL = L
+    outputL = [0] * len(L)
+
+    # Get the length of the strings
+    k = len(L[0])
+    
+    # Cycle through the characters
+    for i in range(k):
+        if debug:
+            print("INPUT WHEN i =", i, "\n", inputL, end="\n\n\n")
+
+        # Init counter
+        counts = [0] * 257 
+
+        # Increment counter
+        for string in inputL:
+            if debug:
+                print("radix sort: k =", k, "converting string[k-i-1] to int:", string[k-i-1])
+            counts[ord(string[k-i-1])] += 1
+
+        # Calculate prefix sum
+        for x in range(1, len(counts)):
+            counts[x] += counts[x-1]
+        
+        # Rebuild list
+        for string in reversed(inputL):
+            x = ord(string[k-i-1])
+            if debug:
+                print("Radix rebuild:\t string =", string, "\t converting", string[k-i-1], "to", x)
+            counts[x] -= 1
+            outputL[counts[x]] = string
+        if debug:
+            print("OUTPUT AFTER i =", i, "\n", outputL, end="\n\n\n")
+        inputL = outputL.copy()
+
+    return inputL
 
 def find_min(L, start, debug=False):
     min_value = L[start]
