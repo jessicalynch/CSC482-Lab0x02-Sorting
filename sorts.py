@@ -14,15 +14,26 @@ def generate_test_list(N, k, min_v, max_v):
     return [''.join(chr(random.randint(min_v, max_v)) for _ in range(k)) for _ in range(N)]
 
 def is_sorted(L):
+    """Checks if a list is in ascending order
+
+    Parameters:
+    arg1 (list): a list to scan
+
+    Returns: 
+    bool: if the list is sorted or not
+    """
+    # Iterate through the list
     for i in range(len(L) - 1):
+        # Return False if any value is found 
+        # to be larger than its predecessor
         if L[i+1] < L[i]:
             return False
-    return True
+    return True # Made it all the way through the list
 
 def verify_sorts(N, k, min_v, max_v):
     """Verify that all sorts are working correctly"""
     # Add all sorting functions to a list
-    sorting_functions = [selection_sort, insertion_sort, radix_sort, counting_sort, merge_sort, quicksort]
+    sorting_functions = [bubble_sort, selection_sort, insertion_sort, radix_sort, counting_sort, merge_sort, quicksort]
 
     # Generate a list of strings for each sorting function
     # and test if the function sorts correctly
@@ -294,7 +305,7 @@ def radix_sort(inputL, d=1, debug=False):
     return inputL
 
 def find_min(L, start, debug=False):
-    """An helper function for selection_sort
+    """A helper function for selection_sort
 
     Parameters:
     arg1 (list): a list to be sorted
@@ -334,87 +345,3 @@ def selection_sort(L, debug=False):
         if L[i] != L[min_loc]:
             L[i], L[min_loc] = L[min_loc], L[i]
     return L
-
-
-def test_sort_performance(min_v, max_v, max_time_per_algorithm):
-    """Test the performance of each sorting algorithm"""
-    
-    # Add all sorting functions to a list
-    sorting_functions = [merge_sort, quicksort, radix_sort,
-        insertion_sort, selection_sort]
-    
-    clock = perf_counter_ns
-
-    t_str = "Time"
-    dr_str = "DR"
-    na_str = "na"
-
-    # Generate a list of strings for each sorting function
-    # and test the performance as length of list grows
-    for sf in sorting_functions:
-        SORT_NAME = sf.__name__
-        print(f"\n\nResults for {(SORT_NAME).upper().replace('_', ' ')}")
-        print("{:>30}".format("k=6"), end="")
-        print("{:>30}".format("k=12"), end="")
-        print("{:>30}".format("k=24"), end="")
-        print("{:>30}".format("k=48"))
-        print("{:>15}{:>15}{:>15}{:>15}{:>15}{:>15}{:>15}{:>15}{:>15}{:>15}".format("N", t_str, dr_str, t_str, dr_str, t_str, dr_str, t_str, dr_str, "Predicted"), end="\n\n")
-
-        previous_run = [1,1,1,1]
-        doubling_ratio = [1,1,1,1]
-        current_time = [1,1,1,1]
-        N = 1
-        k = 6
-        done = False
-
-        while done == False:
-            for k_index in range(4):
-                done = True
-
-                if previous_run[k_index] < max_time_per_algorithm and previous_run[k_index] > 0:
-                    done = False
-
-                    # Generate new list
-                    L = generate_test_list(N, k, min_v, max_v)
-
-                    t0 = clock()
-                    if SORT_NAME == 'quicksort':
-                        L = sf(L, 0, len(L)-1)
-                    else:
-                        L = sf(L)
-                    t1 = clock() - t0
-                    current_time[k_index] = t1
-                    if N > 1:
-                        doubling_ratio[k_index] = round(t1/previous_run[k_index], 3)
-                    previous_run[k_index] = t1
-
-                    k *= 2
-                else:
-                    previous_run[k_index] = -1
-                    current_time[k_index] = -1
-                    doubling_ratio[k_index] = -1
-            if N > 1:
-                sort = sf.__name__
-
-                if sort == "merge_sort" or sort == "quicksort":
-                    if (math.log(int(N/2), 2)) > 0:
-                        predicted = math.log(N, 2) / math.log(int(N/2), 2)
-                    else:
-                        predicted = "nan"                        
-                elif sort == "insertion_sort" or sort == "bubble_sort" or sort == "selection_sort":
-                    predicted = N**2 / ((N//2)**2)
-                elif sort == "radix_sort":
-                    predicted = N / (N//2)
-            else:
-                predicted = "na"
-
-            print("{:>15}".format(N), end="")
-
-            for k_index in range(4):
-                print("{:>15}{:>15}".format(
-                    current_time[k_index] if current_time[k_index] > 0 else na_str,
-                    doubling_ratio[k_index] if doubling_ratio[k_index] > 0 and N > 1 else na_str), end="")
-            print("{:>15}".format(predicted))
-
-
-            N *= 2    
