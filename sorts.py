@@ -1,7 +1,43 @@
 #!/usr/bin/env python
 
-"""sorts.py: Sorting functions for integer lists"""
+"""sorts.py: Sorting functions"""
 __author__ = "Jessica Lynch"
+
+import random
+from time import perf_counter_ns
+import math
+
+def generate_test_list(N, k, min_v, max_v):
+    """Generate a list of strings"""
+    if min_v < 1 or max_v > 256:
+        raise ValueError("generate_test_list failed: min/max out of ASCII range")
+    return [''.join(chr(random.randint(min_v, max_v)) for _ in range(k)) for _ in range(N)]
+
+def is_sorted(L):
+    for i in range(len(L) - 1):
+        if L[i+1] < L[i]:
+            return False
+    return True
+
+def verify_sorts(N, k, min_v, max_v):
+    """Verify that all sorts are working correctly"""
+    # Add all sorting functions to a list
+    sorting_functions = [selection_sort, insertion_sort, radix_sort, counting_sort, merge_sort, quicksort]
+
+    # Generate a list of strings for each sorting function
+    # and test if the function sorts correctly
+    for sf in sorting_functions:
+        SORT_NAME = sf.__name__
+        print(f"Generating list of length {N}, key width of {k}")
+        L = generate_test_list(N, k, min_v, max_v)
+        print(f"Sorting with {(SORT_NAME).upper().replace('_', ' ')}")
+        # print(L)
+        if SORT_NAME == 'quicksort':
+            L = sf(L, 0, len(L)-1)
+        else:
+            L = sf(L)
+        # print(L)
+        print("Verifying...", "Sorted!" if is_sorted(L) else "Failed!", end="\n\n")
 
 def bubble_sort(L):
     """An elementary sorting algorithm
@@ -206,26 +242,41 @@ def quicksort(L, start, end, debug=False):
         quicksort(L, pivot+1, end, debug)
     return L
 
-def radix_sort(L, debug=False):
-    inputL = L
-    outputL = [0] * len(L)
+def radix_sort(inputL, d=1, debug=False):
+    """A comparison-free sorting algorithm
+
+    Parameters:
+    arg1 (list): a list to be sorted
+    arg2 (int): segment size
+    arg3 (bool): prints steps if true 
+
+    Returns: 
+    list: a sorted list
+    """
+    # Init output list with same length as input
+    outputL = [0] * len(inputL)
 
     # Get the length of the strings
-    k = len(L[0])
-    
-    # Cycle through the characters
-    for i in range(k):
-        if debug:
-            print("INPUT WHEN i =", i, "\n", inputL, end="\n\n\n")
+    k = len(inputL[0])
 
+    # Determine if segment size is valid
+    if d != 1:
+        raise ValueError("TODO: handle larger d values")
+    # if d > k:
+    #     raise ValueError("Radix sort: d must be smaller than k")
+
+    # Calculate number of buckets needed based on segment size (d)
+    num_buckets = (2**8) ** d
+    num_segments = k // d
+    
+    # Cycle through the segments of each string
+    for i in range(num_segments):
         # Init counter
-        counts = [0] * 257 
+        counts = [0] * (num_buckets + 1)
 
         # Increment counter
         for string in inputL:
-            if debug:
-                print("radix sort: k =", k, "converting string[k-i-1] to int:", string[k-i-1])
-            counts[ord(string[k-i-1])] += 1
+            counts[ord(string[num_segments-i-1])] += 1
 
         # Calculate prefix sum
         for x in range(1, len(counts)):
@@ -233,31 +284,137 @@ def radix_sort(L, debug=False):
         
         # Rebuild list
         for string in reversed(inputL):
-            x = ord(string[k-i-1])
-            if debug:
-                print("Radix rebuild:\t string =", string, "\t converting", string[k-i-1], "to", x)
+            x = ord(string[num_segments-i-1])
             counts[x] -= 1
             outputL[counts[x]] = string
-        if debug:
-            print("OUTPUT AFTER i =", i, "\n", outputL, end="\n\n\n")
+
+        # Copy values from output list to input list    
         inputL = outputL.copy()
 
     return inputL
 
 def find_min(L, start, debug=False):
+    """An helper function for selection_sort
+
+    Parameters:
+    arg1 (list): a list to be sorted
+    arg2 (int):  index to start searching from
+    arg3 (bool): prints steps if true 
+
+    Returns: 
+    int: index of the smallest value
+    """
+    # Save value at starting index    
     min_value = L[start]
     min_loc = start
+
+    # Pass through the list looking for smaller values
     for i in range(start, len(L)):
         if L[i] < min_value:
             min_value = L[i]
             min_loc = i
     return min_loc
 
-def selection_sort(L, debug=False):
+def selection_sort(L, debug=False):    
+    """An elementary sort where the smallest value is 
+    continually moved to the beginning of the list
+
+    Parameters:
+    arg1 (list): a list to be sorted
+    arg2 (bool): prints steps if true 
+
+    Returns: 
+    list: a sorted list
+    """
+    # Pass through the list
     for i in range(len(L)):
+        # Find the smallest value on each pass
+        # and move to the left
         min_loc = find_min(L, i, debug)
-        if debug:
-            print("i:", i, "\tmin_loc:", min_loc)
         if L[i] != L[min_loc]:
             L[i], L[min_loc] = L[min_loc], L[i]
     return L
+
+
+def test_sort_performance(min_v, max_v, max_time_per_algorithm):
+    """Test the performance of each sorting algorithm"""
+    
+    # Add all sorting functions to a list
+    sorting_functions = [merge_sort, quicksort, radix_sort,
+        insertion_sort, selection_sort]
+    
+    clock = perf_counter_ns
+
+    t_str = "Time"
+    dr_str = "DR"
+    na_str = "na"
+
+    # Generate a list of strings for each sorting function
+    # and test the performance as length of list grows
+    for sf in sorting_functions:
+        SORT_NAME = sf.__name__
+        print(f"\n\nResults for {(SORT_NAME).upper().replace('_', ' ')}")
+        print("{:>30}".format("k=6"), end="")
+        print("{:>30}".format("k=12"), end="")
+        print("{:>30}".format("k=24"), end="")
+        print("{:>30}".format("k=48"))
+        print("{:>15}{:>15}{:>15}{:>15}{:>15}{:>15}{:>15}{:>15}{:>15}{:>15}".format("N", t_str, dr_str, t_str, dr_str, t_str, dr_str, t_str, dr_str, "Predicted"), end="\n\n")
+
+        previous_run = [1,1,1,1]
+        doubling_ratio = [1,1,1,1]
+        current_time = [1,1,1,1]
+        N = 1
+        k = 6
+        done = False
+
+        while done == False:
+            for k_index in range(4):
+                done = True
+
+                if previous_run[k_index] < max_time_per_algorithm and previous_run[k_index] > 0:
+                    done = False
+
+                    # Generate new list
+                    L = generate_test_list(N, k, min_v, max_v)
+
+                    t0 = clock()
+                    if SORT_NAME == 'quicksort':
+                        L = sf(L, 0, len(L)-1)
+                    else:
+                        L = sf(L)
+                    t1 = clock() - t0
+                    current_time[k_index] = t1
+                    if N > 1:
+                        doubling_ratio[k_index] = round(t1/previous_run[k_index], 3)
+                    previous_run[k_index] = t1
+
+                    k *= 2
+                else:
+                    previous_run[k_index] = -1
+                    current_time[k_index] = -1
+                    doubling_ratio[k_index] = -1
+            if N > 1:
+                sort = sf.__name__
+
+                if sort == "merge_sort" or sort == "quicksort":
+                    if (math.log(int(N/2), 2)) > 0:
+                        predicted = math.log(N, 2) / math.log(int(N/2), 2)
+                    else:
+                        predicted = "nan"                        
+                elif sort == "insertion_sort" or sort == "bubble_sort" or sort == "selection_sort":
+                    predicted = N**2 / ((N//2)**2)
+                elif sort == "radix_sort":
+                    predicted = N / (N//2)
+            else:
+                predicted = "na"
+
+            print("{:>15}".format(N), end="")
+
+            for k_index in range(4):
+                print("{:>15}{:>15}".format(
+                    current_time[k_index] if current_time[k_index] > 0 else na_str,
+                    doubling_ratio[k_index] if doubling_ratio[k_index] > 0 and N > 1 else na_str), end="")
+            print("{:>15}".format(predicted))
+
+
+            N *= 2    
