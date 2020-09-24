@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""lab0x02.py: implementations of sorting algorithms"""
+"""lab0x02.py: driver program"""
 __author__ = "Jessica Lynch"
 
 import sorts
@@ -23,7 +23,7 @@ def main():
 
         # Determine max run time for each algorithm
         one_second = 1000000000 # 1 second in nanoseconds
-        MAX_RUN_TIME = one_second * 30
+        MAX_RUN_TIME = one_second // 4 # small value for testing
 
         # Init string constants for table header
         t_str = "Time"
@@ -31,7 +31,8 @@ def main():
         na_str = "na"
 
         # Build list with sorts to test
-        sorting_functions = [sorts.merge_sort]
+        sorting_functions = [sorts.radix_sort, sorts.quicksort, sorts.merge_sort, 
+                            sorts.insertion_sort, sorts.bubble_sort]
 
         # Test performance of each sorting function in list
         # and print table of data
@@ -87,11 +88,15 @@ def main():
                         results[i] = -1
                         continue
                     
+                    # Start clock
                     t0 = clock()
+
                     if SORT_NAME == "quicksort":
                         L = sf(lists_to_sort[i], 0, N-1)
                     else:
                         L = sf(lists_to_sort[i])
+
+                    # Stop clock
                     t1 = clock() - t0 # time the algorithm took in nanoseconds
 
                     # Calculate doubling ratio
@@ -129,7 +134,11 @@ def main():
                     print(f"{results[i]:>15}{doubling_ratio[i]:>15.3}" if results[i] > 0  else f"{na_str:>15}{na_str:>15.3}", end="")
                 print(f"{predicted:>15.3}")
 
+                # Double list length
                 N *= 2
+            
+            # Add space between functions
+            print() 
 
     except Exception as e:
         print(e)
