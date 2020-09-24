@@ -68,7 +68,7 @@ def main():
             # table is complete
             timed_out = False 
 
-            # Start collecting table data for lists size of size N,
+            # Start collecting table data for lists of size N,
             # where N doubles each row
             while N < sys.maxsize and timed_out is False:
                 # Assume table is complete on each row
