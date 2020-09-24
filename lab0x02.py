@@ -11,7 +11,6 @@ import sys
 def main():
 
     try:
-
         # Verify sorting functions work correctly
         N = 1000
         k = 16
@@ -24,7 +23,7 @@ def main():
 
         # Determine max run time for each algorithm
         one_second = 1000000000 # 1 second in nanoseconds
-        MAX_RUN_TIME = one_second * 60
+        MAX_RUN_TIME = one_second * 30
 
         # Init string constants for table header
         t_str = "Time"
@@ -32,9 +31,10 @@ def main():
         na_str = "na"
 
         # Build list with sorts to test
-        sorting_functions = [sorts.insertion_sort]
+        sorting_functions = [sorts.merge_sort]
 
         # Test performance of each sorting function in list
+        # and print table of data
         for sf in sorting_functions:
 
             # Init loop variables 
@@ -42,12 +42,13 @@ def main():
             N = 1
             NUM_K = 4
             results = [1] * NUM_K
+            timed_out_lists = [1] * NUM_K
             doubling_ratio = [1] * NUM_K
 
             # Get the name of the current sort
             SORT_NAME = sf.__name__
 
-            # Print heading
+            # Print heading (k values)
             print(f"Results for {SORT_NAME}")
             k = 6
             for _ in range(NUM_K):
@@ -55,46 +56,58 @@ def main():
                 k *= 2
             print()
 
+            # Print secondary heading
             print(f"{'N':>15}", end="")
             for i in range(NUM_K):
                 print(f"{t_str:>15}{dr_str:>15.3}", end="")
             print(f"{'Predicted':>15}")
             print()
 
-            timed_out = False # set flag
+            # Init flag to track when 
+            # table is complete
+            timed_out = False 
 
             # Start collecting table data for lists size of size N,
             # where N doubles each row
             while N < sys.maxsize and timed_out is False:
+                # Assume table is complete on each row
                 timed_out = True
                 k = 6
                 lists_to_sort = []
                 # Generate 4 lists size N
                 for i in range(NUM_K):
-                    if results[i] > 0:
+                    if timed_out_lists[i] > 0:
                         lists_to_sort.append(sorts.generate_test_list(N, k, min_v, max_v))
                         k *= 2
                     else:
                         lists_to_sort.append([])
 
                 for i in range(NUM_K): 
-                    if results[i] < 0:
+                    if timed_out_lists[i] < 0:
+                        results[i] = -1
                         continue
                     
                     t0 = clock()
-                    L = sf(lists_to_sort[i])
+                    if SORT_NAME == "quicksort":
+                        L = sf(lists_to_sort[i], 0, N-1)
+                    else:
+                        L = sf(lists_to_sort[i])
                     t1 = clock() - t0 # time the algorithm took in nanoseconds
 
+                    # Calculate doubling ratio
                     if N > 1:
                         doubling_ratio[i] = t1 / results[i]
                     else:
                         doubling_ratio[i] = na_str
+                    
+                    # Store current result
+                    results[i] = t1 
 
                     if t1 < MAX_RUN_TIME:
-                        timed_out = False # change flag if at least one sort is still going
-                        results[i] = t1
+                        # Change flag if at least one sort is still going
+                        timed_out = False 
                     else:
-                        results[i] = -1
+                        timed_out_lists[i] = -1
                         
                 # Calculate predicted doubling ratio
                 if N > 1:

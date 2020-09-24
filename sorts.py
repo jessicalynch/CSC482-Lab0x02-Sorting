@@ -140,9 +140,9 @@ def merge(L1, L2, debug=False):
     # pop the smallest value into the new list
     while len(L1) > 0 and len(L2) > 0:
         if L1[0] < L2[0]:
-            merged_list.append(L1.pop(0))
+            merged_list += L1.pop(0)
         else:
-            merged_list.append(L2.pop(0))
+            merged_list += L2.pop(0)
 
     # When only one half contains elements,
     # attach it to the end of the new list
