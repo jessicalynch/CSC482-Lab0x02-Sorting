@@ -117,7 +117,7 @@ def main():
                 # Calculate predicted doubling ratio
                 if N > 1:
                     if SORT_NAME == "merge_sort" or SORT_NAME == "quicksort":
-                        if (math.log(int(N/2), 2)) > 0:
+                        if ((N//2) * math.log(N//2, 2)) > 0:
                             predicted = (N * math.log(N, 2)) / ((N//2) * math.log(N//2, 2))
                         else:
                             predicted = "nan"                        
