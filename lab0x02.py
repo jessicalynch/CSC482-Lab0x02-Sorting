@@ -118,7 +118,7 @@ def main():
                 if N > 1:
                     if SORT_NAME == "merge_sort" or SORT_NAME == "quicksort":
                         if (math.log(int(N/2), 2)) > 0:
-                            predicted = math.log(N, 2) / math.log(int(N/2), 2)
+                            predicted = (N * math.log(N, 2)) / ((N//2) * math.log(N//2, 2))
                         else:
                             predicted = "nan"                        
                     elif SORT_NAME == "insertion_sort" or SORT_NAME == "bubble_sort" or SORT_NAME == "selection_sort":
